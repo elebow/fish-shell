@@ -1286,7 +1286,7 @@ static history_pager_result_t history_pager_search(const std::shared_ptr<history
     size_t page_size = std::max(termsize_last().height / 2 - 2, 12);
 
     completion_list_t completions;
-    history_search_t search{history, search_string, history_search_type_t::contains,
+    history_search_t search{history, search_string, history_search_type_t::contains_subsequence,
                             smartcase_flags(search_string), history_index};
     while (completions.size() < page_size && search.go_to_next_match(direction)) {
         const history_item_t &item = search.current_item();

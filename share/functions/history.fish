@@ -17,7 +17,7 @@ end
 function history --description "display or manipulate interactive command history"
     set -l cmd history
     set -l options --exclusive 'c,e,p' --exclusive 'S,D,M,V,X'
-    set -a options h/help c/contains e/exact p/prefix
+    set -a options h/help c/contains e/exact p/prefix s/subsequence
     set -a options C/case-sensitive R/reverse z/null 't/show-time=?' 'n#max'
     # The following options are deprecated and will be removed in the next major release.
     # Note that they do not have usable short flags.
@@ -51,6 +51,8 @@ function history --description "display or manipulate interactive command histor
     and set -l search_mode --contains
     set -q _flag_exact
     and set -l search_mode --exact
+    set -q _flag_subsequence
+    and set -l search_mode --subsequence
 
     if set -q _flag_delete
         set hist_cmd delete

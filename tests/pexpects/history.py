@@ -95,6 +95,10 @@ expect_prompt("history search --exact 'echo hell' | cat\r\n")
 sendline("history search --prefix 'echo start*echo end' | cat")
 expect_prompt("echo start1; builtin history; echo end1\r\n")
 
+# Verify subsequence searching works.
+sendline("history search --subsequence 'ec heag' | cat")
+expect_prompt("echo hello again\r\n")
+
 # ==========
 # Delete a single command we recently ran.
 sendline("history delete -e -C 'echo hello'")

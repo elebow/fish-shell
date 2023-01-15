@@ -56,9 +56,10 @@ struct history_cmd_opts_t {
 /// the non-flag subcommand form. While many of these flags are deprecated they must be
 /// supported at least until fish 3.0 and possibly longer to avoid breaking everyones
 /// config.fish and other scripts.
-static const wchar_t *const short_options = L":CRcehmn:pt::z";
+static const wchar_t *const short_options = L":CRcehmn:pst::z";
 static const struct woption long_options[] = {{L"prefix", no_argument, 'p'},
                                               {L"contains", no_argument, 'c'},
+                                              {L"subsequence", no_argument, 's'},
                                               {L"help", no_argument, 'h'},
                                               {L"show-time", optional_argument, 't'},
                                               {L"exact", no_argument, 'e'},
@@ -154,6 +155,11 @@ static int parse_cmd_opts(history_cmd_opts_t &opts, int *optind,  //!OCLINT(high
             }
             case 'c': {
                 opts.search_type = history_search_type_t::contains_glob;
+                opts.history_search_type_defined = true;
+                break;
+            }
+            case 's': {
+                opts.search_type = history_search_type_t::contains_subsequence;
                 opts.history_search_type_defined = true;
                 break;
             }
