@@ -1286,18 +1286,30 @@ static history_pager_result_t history_pager_search(const std::shared_ptr<history
     size_t page_size = std::max(termsize_last().height / 2 - 2, 12);
 
     completion_list_t completions;
-    history_search_t search{history, search_string, history_search_type_t::contains,
-                            smartcase_flags(search_string), history_index};
-    while (completions.size() < page_size && search.go_to_next_match(direction)) {
-        const history_item_t &item = search.current_item();
-        completions.push_back(completion_t{
-            item.str(), L"", string_fuzzy_match_t::exact_match(),
-            COMPLETE_REPLACES_COMMANDLINE | COMPLETE_DONT_ESCAPE | COMPLETE_DONT_SORT});
+    size_t last_index = 0;
+    bool has_more_results = false;
+
+    const history_search_type_t search_types[] = {history_search_type_t::contains, history_search_type_t::contains_subsequence};
+    for (history_search_type_t search_type : search_types) {
+      history_search_t search{history, search_string, search_type,
+                              smartcase_flags(search_string), history_index};
+      while (completions.size() < page_size && search.go_to_next_match(direction)) {
+          const history_item_t &item = search.current_item();
+          if (std::any_of(completions.begin(), completions.end(), [&item](completion_t &completion) { return item.str() == completion.completion; })) {
+              // Do not add duplicate values
+              continue;
+          }
+          completions.push_back(completion_t{
+              item.str(), L"", string_fuzzy_match_t::exact_match(),
+              COMPLETE_REPLACES_COMMANDLINE | COMPLETE_DONT_ESCAPE | COMPLETE_DONT_SORT});
+      }
+      last_index += search.current_index();
+      has_more_results = search.go_to_next_match(direction);
     }
-    size_t last_index = search.current_index();
+
     if (direction == history_search_direction_t::forward)
         std::reverse(completions.begin(), completions.end());
-    return {completions, last_index, search.go_to_next_match(direction)};
+    return {completions, last_index, has_more_results};
 }
 
 void reader_data_t::fill_history_pager(bool new_search, history_search_direction_t direction) {
